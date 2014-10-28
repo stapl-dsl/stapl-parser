@@ -7,6 +7,14 @@ import scala.util.Failure
 
 class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) extends Parser {
   
+  def this(
+      input: ParserInput, 
+      s: SubjectAttributeContainer, 
+      a: ActionAttributeContainer,
+      r: ResourceAttributeContainer,
+      e: EnvironmentAttributeContainer) = 
+        this(input, s.allAttributes ++ a.allAttributes ++ r.allAttributes ++ e.allAttributes)
+  
   val attributeMap: Map[String, Attribute] = Map((for(attribute <- attributes) yield {
     val (cType, name) = (attribute.cType, attribute.name)
     val key = s"${cType.toString.toLowerCase}.$name"
@@ -199,7 +207,12 @@ class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) e
   
 }
 
-object Test extends App{
+object TestObject extends App{
+  
+  val (subject, _, resource, _) = BasicPolicy.containers
+  subject.bool = SimpleAttribute(Bool)
+  resource.date = SimpleAttribute(Day)
+  
   val parser = new StaplParser(
 """
 /********
@@ -208,13 +221,18 @@ object Test extends App{
  *******/
     //bla
 Policy("members-of-provider") := when (subject.bool | true & subject.bool) apply FirstApplicable to ( //  bla
-      Rule("ruleid1") := permit iff (! (resource.date gteq (Day(2014,10,24) + 16.days)) ) ,
+      Rule("ruleid1") := permit iff (! (resource.date === (Day(2014,10,24) + 16.days)) ) ,
       Rule("ruleid2") :=/* bla */ deny
 )
-""", List(SimpleAttribute(SUBJECT, "bool", Bool),SimpleAttribute(RESOURCE, "date", Day)))
+""", List(subject.bool, resource.date))
   parser.Stapl.run() match {
     case Success(result) => println(result)
     case Failure(e: ParseError) => print(parser.formatError(e, showTraces=true))
     case Failure(e) => e.printStackTrace()
   }
+  
+  Policy("members-of-provider") := when (true | AlwaysTrue & subject.bool) apply FirstApplicable to ( //  bla
+      stapl.core.Rule("ruleid1") := permit iff (! (resource.date === (Day(2014,10,24) + 16.days)) ) ,
+      stapl.core.Rule("ruleid2") :=/* bla */ deny
+)
 }
