@@ -5,7 +5,7 @@ import stapl.core._
 import scala.util.Success
 import scala.util.Failure
 
-class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) extends Parser {
+class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) extends Parser with CommonRules {
   
   def this(
       input: ParserInput, 
@@ -161,7 +161,6 @@ class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) e
   
   def Attribute = rule { capture((str("subject") | str("action") | str("resource") | str("environment")) ~ '.' ~ Identifier) ~> {attributeMap(_)} }
   
-  def Identifier = rule { IdentifierStartChar ~ optional(zeroOrMore(IdentifierChar)) }
   
   def CombinationAlg = rule { Map("PermitOverrides" -> PermitOverrides, "DenyOverrides" -> DenyOverrides, "FirstApplicable" -> FirstApplicable) }
   
@@ -173,29 +172,6 @@ class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) e
   
   def Long = rule { Integer ~ optional(ch('L') | ch('l')) }
   
-  def String = rule {str("\"") ~ capture(zeroOrMore(!str("\"") ~ Char)) ~ str("\"")} // FIXME not correct !!! \" can be in string
-  
-  def OptWhitespace = rule { optional(Whitespace) }
-  
-  def Whitespace = rule { 
-    oneOrMore(
-        oneOrMore(WhitespaceChar) 
-        | "/*" ~ zeroOrMore(!"*/" ~ Char) ~ "*/" 
-        | str("//") ~ zeroOrMore(str(" ") | str("\t")) ~ zeroOrMore(!anyOf("\r\n") ~ Char) ~ (str("\r\n")| '\r' | '\n')
-    )
-  }
-  
-  val WhitespaceChar = CharPredicate(" \n\r\t\f")
-  
-  val IdentifierStartChar = CharPredicate.Alpha ++ "_$"
-  
-  val IdentifierChar = IdentifierStartChar ++ CharPredicate.Digit
-  
-  val Char = CharPredicate.All
-  
-  val Digit = CharPredicate.Digit
-  
-  val Digit19 = CharPredicate.Digit19
   
   /**
    * Automatically add (optional) whitespace at the end of strings.
@@ -207,7 +183,33 @@ class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) e
   
 }
 
-object TestObject extends App{
+object StaplParser {
+  
+  def parse(policyString: String, attributes: Seq[Attribute]): AbstractPolicy = {
+    val parser = new StaplParser(policyString, attributes)
+    parser.Stapl.run() match {
+      case Success(result) => result
+      case Failure(e: ParseError) => sys.error(parser.formatError(e))
+      case Failure(e) => throw new RuntimeException(e)
+    }
+  }
+  
+  def parse(policyString: String, 
+      s: SubjectAttributeContainer, 
+      a: ActionAttributeContainer,
+      r: ResourceAttributeContainer,
+      e: EnvironmentAttributeContainer): AbstractPolicy = {
+    val parser = new StaplParser(policyString, s, a, r, e)
+    parser.Stapl.run() match {
+      case Success(result) => result
+      case Failure(e: ParseError) => sys.error(parser.formatError(e))
+      case Failure(e) => throw new RuntimeException(e)
+    }
+  }
+  
+}
+
+private object TestObject extends App{
   
   val (subject, _, resource, _) = BasicPolicy.containers
   subject.bool = SimpleAttribute(Bool)
