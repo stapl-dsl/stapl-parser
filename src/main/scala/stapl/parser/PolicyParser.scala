@@ -5,7 +5,7 @@ import stapl.core._
 import scala.util.Success
 import scala.util.Failure
 
-class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) extends Parser with CommonRules {
+class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) extends Parser with CommonRules {
   
   def this(
       input: ParserInput, 
@@ -183,10 +183,10 @@ class StaplParser(override val input: ParserInput, attributes: Seq[Attribute]) e
   
 }
 
-object StaplParser {
+object PolicyParser {
   
   def parse(policyString: String, attributes: Seq[Attribute]): AbstractPolicy = {
-    val parser = new StaplParser(policyString, attributes)
+    val parser = new PolicyParser(policyString, attributes)
     parser.Stapl.run() match {
       case Success(result) => result
       case Failure(e: ParseError) => sys.error(parser.formatError(e))
@@ -199,7 +199,7 @@ object StaplParser {
       a: ActionAttributeContainer,
       r: ResourceAttributeContainer,
       e: EnvironmentAttributeContainer): AbstractPolicy = {
-    val parser = new StaplParser(policyString, s, a, r, e)
+    val parser = new PolicyParser(policyString, s, a, r, e)
     parser.Stapl.run() match {
       case Success(result) => result
       case Failure(e: ParseError) => sys.error(parser.formatError(e))
@@ -215,7 +215,7 @@ private object TestObject extends App{
   subject.bool = SimpleAttribute(Bool)
   resource.date = SimpleAttribute(Day)
   
-  val parser = new StaplParser(
+  val parser = new PolicyParser(
 """
 /********
  * bla

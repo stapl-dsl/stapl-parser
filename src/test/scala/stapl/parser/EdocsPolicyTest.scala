@@ -51,7 +51,7 @@ class EdocsPolicyTest extends AssertionsForJUnit {
   import EdocsAttributes._
 
   val policyFile = Source.fromURL(getClass.getResource("/edocs.stapl")).mkString
-  val parser = new StaplParser(policyFile, subject, action, resource, environment)
+  val parser = new PolicyParser(policyFile, subject, action, resource, environment)
   val policy = parser.Stapl.run() match {
     case Success(result) => result
     case Failure(e: ParseError) => print(parser.formatError(e)); sys.error("wrong input")
