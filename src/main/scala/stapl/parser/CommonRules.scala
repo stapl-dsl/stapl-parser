@@ -2,6 +2,9 @@ package stapl.parser
 
 import org.parboiled2._
 
+/**
+ * A trait containing a number of parser rules that are common to multiple parsers.
+ */
 trait CommonRules { self: Parser =>
 
   def Identifier = rule { IdentifierStartChar ~ optional(zeroOrMore(IdentifierChar)) }

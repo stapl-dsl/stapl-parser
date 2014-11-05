@@ -5,6 +5,9 @@ import stapl.core._
 import scala.util.Success
 import scala.util.Failure
 
+/**
+ * A parser that parses a STAPL policy without any attribute definitions provided in the policy.
+ */
 class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) extends Parser with CommonRules {
   
   def this(
@@ -207,34 +210,4 @@ object PolicyParser {
     }
   }
   
-}
-
-private object TestObject extends App{
-  
-  val (subject, _, resource, _) = BasicPolicy.containers
-  subject.bool = SimpleAttribute(Bool)
-  resource.date = SimpleAttribute(Day)
-  
-  val parser = new PolicyParser(
-"""
-/********
- * bla
- * bla bla
- *******/
-    //bla
-Policy("members-of-provider") := when (subject.bool | true & subject.bool) apply FirstApplicable to ( //  bla
-      Rule("ruleid1") := permit iff (! (resource.date === (Day(2014,10,24) + 16.days)) ) ,
-      Rule("ruleid2") :=/* bla */ deny
-)
-""", List(subject.bool, resource.date))
-  parser.Stapl.run() match {
-    case Success(result) => println(result)
-    case Failure(e: ParseError) => print(parser.formatError(e, showTraces=true))
-    case Failure(e) => e.printStackTrace()
-  }
-  
-  Policy("members-of-provider") := when (true | AlwaysTrue & subject.bool) apply FirstApplicable to ( //  bla
-      stapl.core.Rule("ruleid1") := permit iff (! (resource.date === (Day(2014,10,24) + 16.days)) ) ,
-      stapl.core.Rule("ruleid2") :=/* bla */ deny
-)
 }

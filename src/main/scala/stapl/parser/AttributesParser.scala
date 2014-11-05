@@ -5,11 +5,16 @@ import stapl.core._
 import scala.util.Success
 import scala.util.Failure
 
+/**
+ * A parser that parses a sequence of attribute difinitions into a `Seq[Attribute]`
+ */
 class AttributesParser(override val input: ParserInput) extends Parser with CommonRules {
 
   private type AttributeConstructor = (AttributeContainerType, String, AttributeType) => Attribute
   
-  def AttributeDefs: Rule1[Seq[Attribute]] = rule { OptWhitespace ~ zeroOrMore(AttributeDef).separatedBy(OptWhitespace) ~ OptWhitespace ~ EOI }
+  def AttributeDefs: Rule1[Seq[Attribute]] = rule { OptWhitespace ~ AttributeList ~ OptWhitespace ~ EOI }
+  
+  def AttributeList = rule { zeroOrMore(AttributeDef).separatedBy(OptWhitespace) }
   
   def AttributeDef = rule { 
     AttributeName ~ OptWhitespace ~ "=" ~ capture("SimpleAttribute" | "ListAttribute") ~> {_.trim match {
