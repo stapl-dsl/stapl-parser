@@ -27,7 +27,7 @@ class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) 
   
   def Stapl = rule { OptWhitespace ~ AbstractPolicy ~ OptWhitespace ~ EOI }
   
-  def AbstractPolicy: Rule1[AbstractPolicy] = rule { Policy | Rule }
+  def AbstractPolicy: Rule1[AbstractPolicy] = rule { Policy | Rule | Remote }
   
   def Policy = rule { 
     "Policy(" ~ String ~ ")" ~ ":=" ~ optional("when" ~ "(" ~ Expression ~ OptWhitespace ~ ")") ~
@@ -42,6 +42,8 @@ class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) 
     (id: String, e: Effect, expOpt: Option[Expression]) => 
       expOpt map {exp => new stapl.core.Rule(id)(effect=e, condition=exp) } getOrElse new stapl.core.Rule(id)(effect=e)
   } }
+  
+  def Remote = rule { "RemotePolicy" ~ "(" ~ String ~ OptWhitespace ~ str(")") ~> RemotePolicy }
   
   def Effect = rule { str("permit") ~> {() => Permit} | str("deny") ~> {() => Deny} }
   
