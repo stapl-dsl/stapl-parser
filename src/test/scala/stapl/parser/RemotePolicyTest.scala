@@ -54,7 +54,7 @@ class RemotePolicyTest extends AssertionsForJUnit {
     assert(policy === RemotePolicy("remoteId"))
   }
   
-  @Test def testInnerterRemotePolicy() {
+  @Test def testInnerRemotePolicy() {
     val policyString = 
       """Policy("test") := apply PermitOverrides to (
            RemotePolicy("remoteId1"),

@@ -27,28 +27,25 @@ class AttributesParser(override val input: ParserInput) extends Parser with Comm
   }
   
   def AttributeType = rule {
-    capture(str("String") | str("Number") | str("Bool") | str("DateTimeDuration") | str("DayDuration") | 
-    str("TimeDuration") | str("DateTime") | str("Day") | str("Time")) ~> {_ match {
-      case "Number" => Number
-      case "String" => stapl.core.String
-      case "Bool" => Bool
-      case "DateTime" => DateTime
-      case "Day" => Day
-      case "Time" => Time
-      case "DateTimeDuration" => DateTimeDuration
-      case "DayDuration" => DayDuration
-      case "TimeDuration" => TimeDuration
-    }}
+    str("String") ~ push(stapl.core.String) | 
+    str("Number") ~ push(Number) |
+    str("Bool") ~ push(Bool) |
+    str("DateTimeDuration") ~ push(DateTimeDuration) |
+    str("DayDuration") ~ push(DayDuration) | 
+    str("TimeDuration") ~ push(TimeDuration) |
+    str("DateTime") ~ push(DateTime) |
+    str("Day") ~ push(Day) |
+    str("Time") ~ push(Time)
   }
     
   def AttributeName = rule { 
-    capture(str("subject") | str("action") | str("resource") | str("environment")) ~> {_ match {
-      case "subject" => SUBJECT
-      case "action" => ACTION
-      case "resource" => RESOURCE
-      case "environment" => ENVIRONMENT
-    }} ~ 
-    '.' ~ capture(Identifier) }
+    (
+      str("subject") ~ push(SUBJECT) | 
+      str("action") ~ push(ACTION) | 
+      str("resource") ~ push(RESOURCE) | 
+      str("environment") ~ push(ENVIRONMENT)
+    ) ~ '.' ~ capture(Identifier) 
+  }
   
   /**
    * Automatically add (optional) whitespace at the end of strings.

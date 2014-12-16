@@ -30,7 +30,7 @@ class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) 
   def AbstractPolicy: Rule1[AbstractPolicy] = rule { Policy | Rule | Remote }
   
   def Policy = rule { 
-    "Policy(" ~ String ~ ")" ~ ":=" ~ optional("when" ~ "(" ~ Expression ~ OptWhitespace ~ ")") ~
+    "Policy" ~ "(" ~ String ~ ")" ~ ":=" ~ optional("when" ~ "(" ~ Expression ~ OptWhitespace ~ ")") ~
     str("apply") ~ Whitespace ~ CombinationAlg ~ Whitespace ~ "to" ~ "(" ~
     oneOrMore(AbstractPolicy).separatedBy(OptWhitespace ~ ",") ~ OptWhitespace ~ str(")") ~> {
       (id: String, targOpt: Option[Expression], alg: CombinationAlgorithm, subp: Seq[AbstractPolicy]) => 
@@ -38,14 +38,14 @@ class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) 
     }
   }
 
-  def Rule = rule { "Rule(" ~ String ~ ")" ~ ":=" ~ Effect ~ optional(Whitespace ~ IffExpression) ~> {
+  def Rule = rule { "Rule" ~ "(" ~ String ~ ")" ~ ":=" ~ Effect ~ optional(Whitespace ~ IffExpression) ~> {
     (id: String, e: Effect, expOpt: Option[Expression]) => 
       expOpt map {exp => new stapl.core.Rule(id)(effect=e, condition=exp) } getOrElse new stapl.core.Rule(id)(effect=e)
   } }
   
   def Remote = rule { "RemotePolicy" ~ "(" ~ String ~ OptWhitespace ~ str(")") ~> RemotePolicy }
   
-  def Effect = rule { str("permit") ~> {() => Permit} | str("deny") ~> {() => Deny} }
+  def Effect = rule { str("permit") ~ push(Permit) | str("deny") ~ push(Deny) }
   
   def IffExpression = rule { "iff" ~ "(" ~ Expression ~ OptWhitespace ~ str(")") }
   
@@ -71,11 +71,11 @@ class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) 
   
   def UnaryExpression = rule { 
     ("!" ~ ParensExpression) ~> Not | 
-    Attribute ~> {boolAttributeToExpression(_)} | 
-    str("true") ~> {() => boolean2Expression(true)} | 
-    str("false") ~> {() => boolean2Expression(false)} | 
-    str("AlwaysTrue") ~> {() => AlwaysTrue} | 
-    str("AlwaysFalse") ~> {() => AlwaysFalse}
+    Attribute ~> boolAttributeToExpression _ | 
+    str("true") ~ push(boolean2Expression(true)) | 
+    str("false") ~ push(boolean2Expression(false)) | 
+    str("AlwaysTrue") ~ push(AlwaysTrue) | 
+    str("AlwaysFalse") ~ push(AlwaysFalse)
   }
   
   def Value: Rule1[Value] = rule { (ParensOperation | Attribute | ConcreteValue) }
@@ -105,11 +105,11 @@ class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) 
     DateTimeValue| DayDurationValue | TimeDurationValue | NumberValue
   } // TODO add sequence literals
   
-  def NumberValue = rule { Double ~> {double2Value(_)} | Long ~> {long2Value(_)} }
+  def NumberValue = rule { Double ~> double2Value _ | Long ~> long2Value _ }
   
-  def BoolValue = rule { capture(str("true") | str("false")) ~> {(b:String) => boolean2Value(b.toBoolean)} }
+  def BoolValue = rule { capture(str("true") | str("false")) ~> { b => boolean2Value(b.toBoolean)} }
   
-  def StringValue = rule { String ~> {string2Value(_)} }
+  def StringValue = rule { String ~> string2Value _ }
   
   def DayValue = rule { "Day" ~ "(" ~ 3.times(Integer).separatedBy(OptWhitespace ~ ",") ~ str(")") ~> {
     (nrs: Seq[Long]) => 
