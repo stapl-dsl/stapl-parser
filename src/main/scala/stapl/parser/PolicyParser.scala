@@ -8,7 +8,14 @@ import scala.util.Failure
 /**
  * A parser that parses a STAPL policy without any attribute definitions provided in the policy.
  */
-class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) extends Parser with CommonRules {
+class PolicyParser(override val input: ParserInput, attributeMap: Map[String, Attribute]) extends Parser with CommonRules {
+  
+  def this(input: ParserInput, attributes: Seq[Attribute]) = 
+    this(input, (for(attribute <- attributes) yield {
+      val (cType, name) = (attribute.cType, attribute.name)
+      val key = s"${cType.toString.toLowerCase}.$name"
+      (key, attribute)
+    }).toMap)
   
   def this(
       input: ParserInput, 
@@ -17,12 +24,6 @@ class PolicyParser(override val input: ParserInput, attributes: Seq[Attribute]) 
       r: ResourceAttributeContainer,
       e: EnvironmentAttributeContainer) = 
         this(input, s.allAttributes ++ a.allAttributes ++ r.allAttributes ++ e.allAttributes)
-  
-  val attributeMap: Map[String, Attribute] = Map((for(attribute <- attributes) yield {
-    val (cType, name) = (attribute.cType, attribute.name)
-    val key = s"${cType.toString.toLowerCase}.$name"
-    (key, attribute)
-  }):_*)
   
   
   def Stapl = rule { OptWhitespace ~ AbstractPolicy ~ OptWhitespace ~ EOI }

@@ -55,7 +55,7 @@ class AttributesTest extends AssertionsForJUnit {
       """
       subject.name = SimpleAttribute(String)
       resource.names = ListAttribute(String)
-      environment.nrnames = SimpleAttribute (  Number )
+      environment.nrnames = SimpleAttribute ("nr-names",  Number )
       action.day = SimpleAttribute(DayDuration)
       """)
     val attributes = parser.AttributeDefs.run() match {
@@ -68,8 +68,10 @@ class AttributesTest extends AssertionsForJUnit {
     assert(
         attributes 
           === 
-        Seq(SimpleAttribute(SUBJECT, "name", String), ListAttribute(RESOURCE, "names", String), 
-            SimpleAttribute(ENVIRONMENT, "nrnames", Number), SimpleAttribute(ACTION, "day", DayDuration))
+        Seq(("subject.name", SimpleAttribute(SUBJECT, "name", String)),
+            ("resource.names",ListAttribute(RESOURCE, "names", String)), 
+            ("environment.nrnames",SimpleAttribute(ENVIRONMENT, "nr-names", Number)), 
+            ("action.day",SimpleAttribute(ACTION, "day", DayDuration)))
     )
   }
 
