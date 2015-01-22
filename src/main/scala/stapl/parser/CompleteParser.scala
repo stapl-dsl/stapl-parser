@@ -46,6 +46,15 @@ object CompleteParser {
     }
   }
   
+  def parse(policyString: String, attributes: Map[String, Attribute]): AbstractPolicy = {
+    val parser = new CompleteParser(policyString, attributes)
+    parser.CompletePolicy.run() match {
+      case Success(result) => result
+      case Failure(e: ParseError) => sys.error(parser.formatError(e))
+      case Failure(e) => throw new RuntimeException(e)
+    }
+  }
+  
   def parse(policyString: String, 
       s: SubjectAttributeContainer, 
       a: ActionAttributeContainer,
