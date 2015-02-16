@@ -22,8 +22,6 @@ package stapl.parser
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Test
-import stapl.core.pdp.PDP
-import stapl.core.pdp.AttributeFinder
 import org.junit.Assert._
 import org.scalatest.junit.AssertionsForJUnit
 import scala.io.Source
@@ -34,7 +32,7 @@ import EdocsAttributes.resource
 import EdocsAttributes.subject
 import scala.util.Failure
 import org.parboiled2.ParseError
-import stapl.core.BasicPolicy
+import stapl.core._
 
 object CompleteParserTest {
   
@@ -58,12 +56,10 @@ class CompleteParserTest extends AssertionsForJUnit {
       case Failure(e) => e.printStackTrace(); sys.error("wrong input")
     }
     
-    assert(policy.toString === TestPolicy.policy.toString)
+    assert(policy.toString equals TestPolicy.policy.toString)
   }
 
   object TestPolicy extends BasicPolicy {
-    
-    import stapl.core._
     
     val policyString = 
 """
@@ -411,6 +407,8 @@ class CompleteParserTest extends AssertionsForJUnit {
     environment.current_time_between_7_and_19     = SimpleAttribute(Bool)   // because of the difficulty of writing this, but we could do this easily
     environment.dateTimeOk              = SimpleAttribute(Bool)   // in STAPL! However, for honest comparison: leave it this way.
       
+    import stapl.core.dsl._
+    
     val policy =
       Policy("edocs") := apply DenyOverrides to (
           // For members of the provider
