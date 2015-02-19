@@ -8,8 +8,15 @@ import scala.util.Failure
 /**
  * A parser that parses a complete STAPL policy with additional attribute definitions at the top of the policy.
  */
-class CompleteParser(override val input: ParserInput, attributes: Seq[Attribute]) extends Parser with CommonRules {
+class CompleteParser(override val input: ParserInput, attributes: Map[String, Attribute]) extends Parser with CommonRules {
 
+  def this(input: ParserInput, attributes: Seq[Attribute]) = 
+    this(input, (for(attribute <- attributes) yield {
+      val (cType, name) = (attribute.cType, attribute.name)
+      val key = s"${cType.toString.toLowerCase}.$name"
+      (key, attribute)
+    }).toMap)
+  
   def this(
       input: ParserInput, 
       s: SubjectAttributeContainer, 
@@ -21,7 +28,7 @@ class CompleteParser(override val input: ParserInput, attributes: Seq[Attribute]
   
   def CompletePolicy: Rule1[AbstractPolicy] = rule { 
     OptWhitespace ~ runSubParser(new AttributesParser(_).AttributeList) ~> {
-      (parsedAttributes: Seq[Attribute]) =>
+      (parsedAttributes: Seq[(String, Attribute)]) =>
       OptWhitespace ~ runSubParser(new PolicyParser(_, attributes ++ parsedAttributes).AbstractPolicy) ~ OptWhitespace ~ EOI
     } 
   }
@@ -31,6 +38,15 @@ class CompleteParser(override val input: ParserInput, attributes: Seq[Attribute]
 object CompleteParser {
   
   def parse(policyString: String, attributes: Seq[Attribute]): AbstractPolicy = {
+    val parser = new CompleteParser(policyString, attributes)
+    parser.CompletePolicy.run() match {
+      case Success(result) => result
+      case Failure(e: ParseError) => sys.error(parser.formatError(e))
+      case Failure(e) => throw new RuntimeException(e)
+    }
+  }
+  
+  def parse(policyString: String, attributes: Map[String, Attribute]): AbstractPolicy = {
     val parser = new CompleteParser(policyString, attributes)
     parser.CompletePolicy.run() match {
       case Success(result) => result
