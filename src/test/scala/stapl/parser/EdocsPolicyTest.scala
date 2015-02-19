@@ -74,7 +74,7 @@ class EdocsPolicyTest extends AssertionsForJUnit {
         subject.assigned_tenants -> List("tenant1","tenant3"),
         resource.type_ -> "document",
         resource.owning_tenant -> "tenant4",
-        resource.confidential -> false) === Result(Deny, List()))
+        resource.confidential -> false).decision === Deny)
   }
 
   @Test def testPermitHelpdeskAssigned() {
@@ -85,7 +85,7 @@ class EdocsPolicyTest extends AssertionsForJUnit {
         subject.assigned_tenants -> List("tenant1","tenant3"),
         resource.type_ -> "document",
         resource.owning_tenant -> "tenant3",
-        resource.confidential -> false) === Result(Permit, List()))
+        resource.confidential -> false).decision === Permit)
   }
 
   @Test def testPermitLargeBankCreateSubtenant() {
@@ -97,7 +97,7 @@ class EdocsPolicyTest extends AssertionsForJUnit {
         subject.tenant_type -> List("tenant"),
         resource.type_ -> "subtenant",
         resource.confidential -> false,
-        resource.owning_tenant -> "large-bank") === Result(Permit, List()))
+        resource.owning_tenant -> "large-bank").decision === Permit)
   }
 
   @Test def testDenyLargeBankCreateSubtenantWrongDepartment() {
@@ -109,7 +109,7 @@ class EdocsPolicyTest extends AssertionsForJUnit {
         subject.tenant_type -> List("tenant"),
         resource.type_ -> "subtenant",
         resource.confidential -> false,
-        resource.owning_tenant -> "large-bank") === Result(Deny, List()))
+        resource.owning_tenant -> "large-bank").decision === Deny)
   }
 
   @Test def testDenyLargeBankCreateSubtenantWrongRole() {
@@ -121,7 +121,7 @@ class EdocsPolicyTest extends AssertionsForJUnit {
         subject.tenant_type -> List("tenant"),
         resource.type_ -> "subtenant",
         resource.confidential -> false,
-        resource.owning_tenant -> "large-bank") === Result(Deny, List()))
+        resource.owning_tenant -> "large-bank").decision === Deny)
   }
 }
 
