@@ -16,7 +16,7 @@ import scala.util.Failure
  * {{{
  * Seq(
  *   ("subject.name", SimpleAttribute(SUBJECT, "the-name", String)),
- *   ("resource.names", SimpleAttribute(RESOURCE, "names", String))
+ *   ("resource.names", ListAttribute(RESOURCE, "names", String))
  * )
  * }}}
  */
