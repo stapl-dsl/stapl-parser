@@ -7,6 +7,19 @@ import scala.util.Failure
 
 /**
  * A parser that parses a sequence of attribute definitions into a `Seq[Attribute]`
+ * A parser that parses a sequence of attribute definitions into a `Seq[(String, Attribute)]`.
+ * For instance:
+ * {{{
+ * subject.name = SimpleAttribute("the-name", String)
+ * resource.names = ListAttribute(String)
+ * }}}
+ * will parse to
+ * {{{
+ * Seq(
+ *   ("subject.name", SimpleAttribute(SUBJECT, "the-name", String)),
+ *   ("resource.names", SimpleAttribute(RESOURCE, "names", String))
+ * )
+ * }}}
  */
 class AttributesParser(override val input: ParserInput) extends Parser with CommonRules {
 
