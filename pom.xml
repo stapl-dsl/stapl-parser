@@ -2,7 +2,7 @@
   	<modelVersion>4.0.0</modelVersion>
   	<groupId>stapl</groupId>
   	<artifactId>stapl-parser</artifactId>
-  	<version>0.0.1-SNAPSHOT</version>
+  	<version>0.0.1-SNAPSHOT_2.11</version>
 	<name>${project.artifactId}</name>
 	<description>A parser for (a subset of) the STAPL language as an external DSL</description>
 	<inceptionYear>2014</inceptionYear>
@@ -11,8 +11,8 @@
 		<maven.compiler.source>1.6</maven.compiler.source>
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
-		<scala.tools.version>2.10</scala.tools.version>
-		<scala.version>2.10.4</scala.version>
+		<scala.tools.version>2.15.0</scala.tools.version>
+		<scala.version>2.11.5</scala.version>
 	</properties>
 
 	<dependencies>
@@ -31,19 +31,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.scalatest</groupId>
-			<artifactId>scalatest_${scala.tools.version}</artifactId>
+			<artifactId>scalatest_2.11</artifactId>
 			<version>2.2.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>stapl</groupId>
 			<artifactId>stapl-core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1-SNAPSHOT_2.11</version>
 		</dependency>
 		<dependency>
 		    <groupId>org.parboiled</groupId>
-		    <artifactId>parboiled_2.10</artifactId>
-		    <version>2.0.1</version>
+		    <artifactId>parboiled_2.11</artifactId>
+		    <version>2.1.0</version>
 		</dependency>
 	</dependencies>
 
@@ -80,37 +80,37 @@
 			</plugin>
 
 
-			<plugin>
-    <groupId>net.alchim31.maven</groupId>
-    <artifactId>scala-maven-plugin</artifactId>
-    <version>3.1.6</version>
-    <configuration>
-        <recompileMode>incremental</recompileMode>
-        <args>
-            <arg>-deprecation</arg>
-            <arg>-explaintypes</arg>
-            <arg>-target:jvm-1.7</arg>
-        </args>
-    </configuration>
-    <executions>
-        <execution>
-            <id>scala-compile-first</id>
-            <phase>process-resources</phase>
-            <goals>
-                <goal>add-source</goal>
-                <goal>compile</goal>
-            </goals>
-        </execution>
-        <execution>
-            <id>scala-test-compile</id>
-            <phase>process-test-resources</phase>
-            <goals>
-                <goal>add-source</goal>
-                <goal>testCompile</goal>
-            </goals>
-        </execution>
-    </executions>
-</plugin>
+		<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>scala-maven-plugin</artifactId>
+				<version>3.1.6</version>
+				<configuration>
+					<recompileMode>incremental</recompileMode>
+					<args>
+						<arg>-deprecation</arg>
+						<arg>-explaintypes</arg>
+						<arg>-target:jvm-1.7</arg>
+					</args>
+				</configuration>
+				<executions>
+					<execution>
+						<id>scala-compile-first</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>add-source</goal>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>scala-test-compile</id>
+						<phase>process-test-resources</phase>
+						<goals>
+							<goal>add-source</goal>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			
 			
 			<plugin>

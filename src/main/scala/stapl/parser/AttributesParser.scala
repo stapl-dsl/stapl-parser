@@ -6,7 +6,7 @@ import scala.util.Success
 import scala.util.Failure
 
 /**
- * A parser that parses a sequence of attribute difinitions into a `Seq[Attribute]`
+ * A parser that parses a sequence of attribute definitions into a `Seq[Attribute]`
  */
 class AttributesParser(override val input: ParserInput) extends Parser with CommonRules {
 
@@ -17,10 +17,10 @@ class AttributesParser(override val input: ParserInput) extends Parser with Comm
   def AttributeList = rule { zeroOrMore(AttributeDef).separatedBy(OptWhitespace) }
   
   def AttributeDef = rule { 
-    AttributeName ~ OptWhitespace ~ "=" ~ capture("SimpleAttribute" | "ListAttribute") ~> {_.trim match {
-      case "SimpleAttribute" => SimpleAttribute(_:AttributeContainerType,_:String,_:AttributeType)
-      case "ListAttribute" => ListAttribute(_:AttributeContainerType,_:String,_:AttributeType)
-    }} ~ "("  ~ optional(String ~ OptWhitespace ~ ",")~ AttributeType ~ OptWhitespace ~ str(")") ~> {
+    AttributeName ~ OptWhitespace ~ "=" ~ 
+    ("SimpleAttribute" ~ push(SimpleAttribute(_:AttributeContainerType,_:String,_:AttributeType)) | 
+        "ListAttribute" ~ push(ListAttribute(_:AttributeContainerType,_:String,_:AttributeType))) ~ 
+    "("  ~ optional(String ~ OptWhitespace ~ ",") ~ AttributeType ~ OptWhitespace ~ str(")") ~> {
       (cType: AttributeContainerType, name: String, constr: AttributeConstructor, optName: Option[String], aType: AttributeType) =>
         (cType.toString.toLowerCase + "." + name, constr(cType, optName.getOrElse(name), aType))
     }

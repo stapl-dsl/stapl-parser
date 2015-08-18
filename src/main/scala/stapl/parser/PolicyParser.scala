@@ -81,20 +81,20 @@ class PolicyParser(override val input: ParserInput, attributeMap: Map[String, At
   
   def Value: Rule1[Value] = rule { (ParensOperation | Attribute | ConcreteValue) }
   
-  def ParensOperation: Rule1[Operation] = rule { "(" ~ BinaryOperation ~ OptWhitespace ~ str(")") | UnaryOperation }
+  def ParensOperation = rule { "(" ~ BinaryOperation ~ OptWhitespace ~ str(")") | UnaryOperation }
   
-  def Operation: Rule1[Operation] = rule { BinaryOperation | UnaryOperation }
+  def Operation = rule { BinaryOperation | UnaryOperation }
   
   def BinaryOperation = rule { OperationTerm ~ zeroOrMore(OptWhitespace ~ (
         "+" ~ OperationTerm ~> Addition
       | "-" ~ OperationTerm ~> Subtraction
   )) }
   
-  def UnaryOperation = rule { "abs" ~ "(" ~ UnaryOpFactor ~ OptWhitespace ~ str(")") ~> AbsoluteValue }
+  def UnaryOperation: Rule1[Operation] = rule { "abs" ~ "(" ~ UnaryOpFactor ~ OptWhitespace ~ str(")") ~> AbsoluteValue }
   
   def UnaryOpFactor = rule { Operation | Attribute | ConcreteValue }
   
-  def OperationTerm: Rule1[Value] = rule { OperationFactor ~ zeroOrMore(OptWhitespace ~ (
+  def OperationTerm = rule { OperationFactor ~ zeroOrMore(OptWhitespace ~ (
         "*" ~ OperationFactor ~> Multiplication
       | "/" ~ OperationFactor ~> Division
   )) }
@@ -114,36 +114,46 @@ class PolicyParser(override val input: ParserInput, attributeMap: Map[String, At
   
   def DayValue = rule { "Day" ~ "(" ~ 3.times(Integer).separatedBy(OptWhitespace ~ ",") ~ str(")") ~> {
     (nrs: Seq[Long]) => 
-      val Seq(year, month, day) = nrs map {_.toInt}
-      Day(year, month, day)
+      //val Seq(year, month, day) = nrs map {_.toInt}
+      //Day(year, month, day)
+      val date = nrs map {_.toInt}
+      Day(date(0), date(1), date(2))
   } }
   
   def TimeValue = rule { TimeWithMillis | TimeWithoutMillis }
   
   def TimeWithMillis = rule { "Time" ~ "(" ~ 4.times(Integer).separatedBy(OptWhitespace ~ ",") ~ str(")") ~> {
     (nrs: Seq[Long]) => 
-      val Seq(hour, min, sec, mil) = nrs map {_.toInt}
-      Time(hour, min, sec, mil)
+      //val Seq(hour, min, sec, mil) = nrs map {_.toInt}
+      //Time(hour, min, sec, mil)
+      val date = nrs map {_.toInt}
+      Time(date(0), date(1), date(2), date(3))
   } }
   
   def TimeWithoutMillis = rule { "Time" ~ "(" ~ 3.times(Integer).separatedBy(OptWhitespace ~ ",") ~ str(")") ~> {
     (nrs: Seq[Long]) => 
-      val Seq(hour, min, sec) = nrs map {_.toInt}
-      Time(hour, min, sec)
+      //val Seq(hour, min, sec) = nrs map {_.toInt}
+      //Time(hour, min, sec)
+      val date = nrs map {_.toInt}
+      Time(date(0), date(1), date(2))
   } }
   
   def DateTimeValue = rule { DateTimeWithMillis | DateTimeWithoutMillis }
   
   def DateTimeWithMillis = rule { "DateTime" ~ "(" ~ 7.times(Integer).separatedBy(OptWhitespace ~ ",") ~ str(")") ~> {
     (nrs: Seq[Long]) => 
-      val Seq(year, month, day, hour, min, sec, mil) = nrs map {_.toInt}
-      DateTime(year, month, day, hour, min, sec, mil)
+      //val Seq(year, month, day, hour, min, sec, mil) = nrs map {_.toInt}
+      //DateTime(year, month, day, hour, min, sec, mil)
+      val date = nrs map {_.toInt}
+      DateTime(date(0), date(1), date(2), date(3), date(4), date(5), date(6))
   } }
   
   def DateTimeWithoutMillis = rule { "DateTime" ~ "(" ~ 6.times(Integer).separatedBy(OptWhitespace ~ ",") ~ str(")") ~> {
     (nrs: Seq[Long]) => 
-      val Seq(year, month, day, hour, min, sec) = nrs map {_.toInt}
-      DateTime(year, month, day, hour, min, sec)
+      //val Seq(year, month, day, hour, min, sec) = nrs map {_.toInt}
+      //DateTime(year, month, day, hour, min, sec)
+      val date = nrs map {_.toInt}
+      DateTime(date(0), date(1), date(2), date(3), date(4), date(5))
   } }
   
   def DayDurationValue = rule { Integer ~ '.' ~ capture(str("days") | str("months") | str("years")) ~> {
